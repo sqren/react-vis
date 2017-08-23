@@ -182,15 +182,41 @@ class XYPlot extends React.Component {
   }
 
   /**
+   * Trigger onMouseUp handler if it was passed in props.
+   * @param {Event} event Native event.
+   * @private
+   */
+  _mouseUpHandler(event) {
+    const {onMouseUp, children} = this.props;
+    if (onMouseUp) {
+      onMouseUp({event});
+    }
+    const seriesChildren = getSeriesChildren(children);
+    seriesChildren.forEach((child, index) => {
+      const component = this.refs[`series${index}`];
+      if (component && component.onParentMouseUp) {
+        component.onParentMouseUp(event);
+      }
+    });
+  }
+
+  /**
    * Trigger onMouseLeave handler if it was passed in props.
    * @param {Event} event Native event.
    * @private
    */
   _mouseLeaveHandler(event) {
-    const {onMouseLeave} = this.props;
+    const {onMouseLeave, children} = this.props;
     if (onMouseLeave) {
       onMouseLeave({event});
     }
+    const seriesChildren = getSeriesChildren(children);
+    seriesChildren.forEach((child, index) => {
+      const component = this.refs[`series${index}`];
+      if (component && component.onParentMouseLeave) {
+        component.onParentMouseLeave(event);
+      }
+    });
   }
 
   /**
@@ -410,6 +436,7 @@ class XYPlot extends React.Component {
           width={width}
           height={height}
           style={style}
+          onMouseUp={this._mouseUpHandler}
           onMouseDown={this._mouseDownHandler}
           onMouseMove={this._mouseMoveHandler}
           onMouseLeave={this._mouseLeaveHandler}
